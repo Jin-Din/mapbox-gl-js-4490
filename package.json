@@ -1,6 +1,6 @@
 {
   "name": "@jindin/mapbox-gl-4490",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "mapboxgl api（支持3857、4490、4326）",
   "main": "dist/mapbox-gl.js",
   "style": "dist/mapbox-gl.css",
