@@ -1,0 +1,21 @@
+{
+  "name": "@jindin/mapbox-gl-4490",
+  "version": "0.0.3",
+  "description": "mapboxgl api（支持3857、4490、4326）",
+  "main": "dist/mapbox-gl.js",
+  "style": "dist/mapbox-gl.css",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "release": "npm publish --access public"
+  },
+  "keywords": [
+    "mapbox-gl"
+  ],
+  "author": "JinDin",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^5.1.3"
+  }
+}
