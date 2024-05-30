@@ -9,7 +9,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/mapbox-gl.js"
+      "import": "./dist/mapbox-gl-v2.15.0.js"
     }
   },
   "scripts": {
