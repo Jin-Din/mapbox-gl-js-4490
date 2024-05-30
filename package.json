@@ -1,16 +1,20 @@
 {
   "name": "@jindin/mapbox-gl-4490",
-  "version": "0.0.6",
-  "description": "基于mapbox-gl（v2.1x.0）修改的mapboxgl api js库（支持3857、4490、4326）,所有资源均来自网络",
-  "main": "dist/mapbox-gl-v2.15.0.js",
+  "version": "0.1.0",
+  "description": "基于mapbox-gl（v2.13.0）修改的mapboxgl api js库（支持3857、4490、4326）,所有资源均来自网络",
+  "main": "dist/mapbox-gl.js",
   "style": "dist/mapbox-gl.css",
   "type": "module",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/mapbox-gl-v2.15.0.js"
-    }
+      "import": "./dist/mapbox-gl.js"
+    },
+    "./*": [
+      "./*",
+      "./*.d.ts"
+    ]
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
