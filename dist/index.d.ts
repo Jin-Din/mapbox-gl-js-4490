@@ -1,19 +1,6 @@
-// Type definitions for Mapbox GL JS 2.7
-// Project: https://github.com/mapbox/mapbox-gl-js
-// Definitions by: Dominik Bruderer <https://github.com/dobrud>
-//                 Karl-Aksel Puulmann <https://github.com/macobo>
-//                 Dmytro Gokun <https://github.com/dmytro-gokun>
-//                 Liam Clarke <https://github.com/LiamAttClarke>
-//                 Vladimir Dashukevich <https://github.com/life777>
-//                 André Fonseca <https://github.com/amxfonseca>
-//                 makspetrov <https://github.com/Nosfit>
-//                 Michael Bullington <https://github.com/mbullington>
-//                 Olivier Pascal <https://github.com/pascaloliv>
-//                 Marko Schilde <https://github.com/mschilde>
-// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
-// TypeScript Version: 3.0
-
 /// <reference types="geojson" />
+
+/** from @types/mapbox-gl@3.1.0 */
 
 declare module "@jindin/mapbox-gl-4490" {
   export = mapboxgl;
@@ -113,6 +100,7 @@ declare module "@jindin/mapbox-gl-4490" {
       | "index-of"
       | "length"
       | "slice"
+      | "config"
       // Decision
       | "!"
       | "!="
@@ -142,6 +130,8 @@ declare module "@jindin/mapbox-gl-4490" {
       | "resolved-locale"
       | "upcase"
       // Color
+      | "hsl"
+      | "hsla"
       | "rgb"
       | "rgba"
       | "to-rgba"
@@ -158,6 +148,7 @@ declare module "@jindin/mapbox-gl-4490" {
       | "atan"
       | "ceil"
       | "cos"
+      | "distance"
       | "e"
       | "floor"
       | "ln"
@@ -167,12 +158,19 @@ declare module "@jindin/mapbox-gl-4490" {
       | "max"
       | "min"
       | "pi"
+      | "random"
       | "round"
       | "sin"
       | "sqrt"
       | "tan"
-      // Zoom, Heatmap
+      // Camera
+      | "distance-from-center"
+      | "pitch"
       | "zoom"
+      | "raster-value"
+      // Lights
+      | "measure-light"
+      // Heatmap
       | "heatmap-density";
 
     type Expression = [ExpressionName, ...any[]];
@@ -312,8 +310,8 @@ declare module "@jindin/mapbox-gl-4490" {
         options?: {
           pixelRatio?: number | undefined;
           sdf?: boolean | undefined;
-          stretchX?: [number, number][] | undefined;
-          stretchY?: [number, number][] | undefined;
+          stretchX?: Array<[number, number]> | undefined;
+          stretchY?: Array<[number, number]> | undefined;
           content?: [number, number, number, number] | undefined;
         }
       ): void;
@@ -353,6 +351,29 @@ declare module "@jindin/mapbox-gl-4490" {
 
       getLayoutProperty(layer: string, name: string): any;
 
+      /**
+       * Returns the value of a configuration property in the imported style.
+       *
+       * @param {string} importId The name of the imported style to set the config for (e.g. `basemap`).
+       * @param {string} configName The name of the configuration property from the style.
+       * @returns {*} Returns the value of the configuration property.
+       * @example
+       * map.getConfigProperty('basemap', 'showLabels');
+       */
+      getConfigProperty(importId: string, configName: string): any;
+
+      /**
+       * Sets the value of a configuration property in the currently set style.
+       *
+       * @param {string} importId The name of the imported style to set the config for (e.g. `basemap`).
+       * @param {string} configName The name of the configuration property from the style.
+       * @param {*} value The value of the configuration property. Must be of a type appropriate for the property, as defined by the style configuration schema.
+       * @returns {Map} Returns itself to allow for method chaining.
+       * @example
+       * map.setConfigProperty('basemap', 'showLabels', false);
+       */
+      setConfigProperty(importId: string, configName: string, value: any): this;
+
       setLight(light: mapboxgl.Light, options?: FilterOptions): this;
 
       getLight(): mapboxgl.Light;
@@ -380,7 +401,6 @@ declare module "@jindin/mapbox-gl-4490" {
       showTerrainWireframe: boolean;
 
       /**
-       *
        * @param lngLat The coordinate to query
        * @param options Optional {ElevationQueryOptions}
        * @returns The elevation in meters at mean sea level or null
@@ -468,7 +488,7 @@ declare module "@jindin/mapbox-gl-4490" {
        */
       setPadding(padding: PaddingOptions, eventData?: EventData): this;
 
-      rotateTo(bearing: number, options?: mapboxgl.AnimationOptions, eventData?: EventData): this;
+      rotateTo(bearing: number, options?: AnimationOptions & CameraOptions, eventData?: EventData): this;
 
       resetNorth(options?: mapboxgl.AnimationOptions, eventData?: mapboxgl.EventData): this;
 
@@ -531,7 +551,7 @@ declare module "@jindin/mapbox-gl-4490" {
 
       on<T extends keyof MapLayerEventType>(
         type: T,
-        layer: string | ReadonlyArray<string>,
+        layer: string | readonly string[],
         listener: (ev: MapLayerEventType[T] & EventData) => void
       ): this;
       on<T extends keyof MapEventType>(type: T, listener: (ev: MapEventType[T] & EventData) => void): this;
@@ -539,7 +559,7 @@ declare module "@jindin/mapbox-gl-4490" {
 
       once<T extends keyof MapLayerEventType>(
         type: T,
-        layer: string | ReadonlyArray<string>,
+        layer: string | readonly string[],
         listener: (ev: MapLayerEventType[T] & EventData) => void
       ): this;
       once<T extends keyof MapEventType>(type: T, listener: (ev: MapEventType[T] & EventData) => void): this;
@@ -548,7 +568,7 @@ declare module "@jindin/mapbox-gl-4490" {
 
       off<T extends keyof MapLayerEventType>(
         type: T,
-        layer: string | ReadonlyArray<string>,
+        layer: string | readonly string[],
         listener: (ev: MapLayerEventType[T] & EventData) => void
       ): this;
       off<T extends keyof MapEventType>(type: T, listener: (ev: MapEventType[T] & EventData) => void): this;
@@ -571,15 +591,17 @@ declare module "@jindin/mapbox-gl-4490" {
       touchPitch: TouchPitchHandler;
 
       getFog(): Fog | null;
-      setFog(fog: Fog): this;
+      /**
+       * @param fog If `null` or `undefined` is provided, function removes fog from
+       * the map.
+       */
+      setFog(fog: Fog | null | undefined): this;
 
       getProjection(): Projection;
       setProjection(projection: Projection | string): this;
     }
 
     export interface MapboxOptions {
-      epsg: 3857 | 4490 | 4326;
-
       /**
        * If true, the gl context will be created with MSA antialiasing, which can be useful for antialiasing custom layers.
        * This is false by default as a performance optimization.
@@ -660,7 +682,7 @@ declare module "@jindin/mapbox-gl-4490" {
        * An additional string may optionally be provided to indicate a parameter-styled hash,
        * e.g. http://path/to/my/page.html#map=2.59/39.26/53.07/-24.1/60&foo=bar, where foo
        * is a custom parameter and bar is an arbitrary hash distinct from the map hash.
-       * */
+       */
       hash?: boolean | string | undefined;
 
       /**
@@ -730,14 +752,6 @@ declare module "@jindin/mapbox-gl-4490" {
 
       /** Minimum zoom of the map. */
       minZoom?: number | undefined;
-
-      /**
-       * If true, map will prioritize rendering for performance by reordering layers
-       * If false, layers will always be drawn in the specified order
-       *
-       * @default true
-       */
-      optimizeForTerrain?: boolean | undefined;
 
       /** If true, The maps canvas can be exported to a PNG using map.getCanvas().toDataURL();. This is false by default as a performance optimization. */
       preserveDrawingBuffer?: boolean | undefined;
@@ -1300,6 +1314,9 @@ declare module "@jindin/mapbox-gl-4490" {
       color?: string | Expression | undefined;
       "horizon-blend"?: number | Expression | undefined;
       range?: number[] | Expression | undefined;
+      "high-color"?: string | Expression | undefined;
+      "space-color"?: string | Expression | undefined;
+      "star-intensity"?: number | Expression | undefined;
     }
 
     export interface Sources {
@@ -1318,14 +1335,42 @@ declare module "@jindin/mapbox-gl-4490" {
       | RasterDemSource
       | CustomSourceInterface<HTMLImageElement | ImageData | ImageBitmap>;
 
+    interface RasterSourceImpl extends RasterSource {
+      /**
+       * Reloads the source data and re-renders the map.
+       */
+      reload(): void;
+
+      /**
+       * Sets the source `tiles` property and re-renders the map.
+       *
+       * @param {string[]} tiles An array of one or more tile source URLs, as in the TileJSON spec.
+       * @returns {RasterTileSource} this
+       */
+      setTiles(tiles: readonly string[]): RasterSourceImpl;
+
+      /**
+       * Sets the source `url` property and re-renders the map.
+       *
+       * @param {string} url A URL to a TileJSON resource. Supported protocols are `http:`, `https:`, and `mapbox://<Tileset ID>`.
+       * @returns {RasterTileSource} this
+       */
+      setUrl(url: string): RasterSourceImpl;
+    }
+
     interface VectorSourceImpl extends VectorSource {
+      /**
+       * Reloads the source data and re-renders the map.
+       */
+      reload(): void;
+
       /**
        * Sets the source `tiles` property and re-renders the map.
        *
        * @param {string[]} tiles An array of one or more tile source URLs, as in the TileJSON spec.
        * @returns {VectorTileSource} this
        */
-      setTiles(tiles: ReadonlyArray<string>): VectorSourceImpl;
+      setTiles(tiles: readonly string[]): VectorSourceImpl;
 
       /**
        * Sets the source `url` property and re-renders the map.
@@ -1342,7 +1387,7 @@ declare module "@jindin/mapbox-gl-4490" {
       | ImageSource
       | CanvasSource
       | VectorSourceImpl
-      | RasterSource
+      | RasterSourceImpl
       | RasterDemSource
       | CustomSource<HTMLImageElement | ImageData | ImageBitmap>;
 
@@ -1367,13 +1412,13 @@ declare module "@jindin/mapbox-gl-4490" {
 
       getClusterExpansionZoom(clusterId: number, callback: (error: any, zoom: number) => void): this;
 
-      getClusterChildren(clusterId: number, callback: (error: any, features: GeoJSON.Feature<GeoJSON.Geometry>[]) => void): this;
+      getClusterChildren(clusterId: number, callback: (error: any, features: Array<GeoJSON.Feature<GeoJSON.Geometry>>) => void): this;
 
       getClusterLeaves(
         cluserId: number,
         limit: number,
         offset: number,
-        callback: (error: any, features: GeoJSON.Feature<GeoJSON.Geometry>[]) => void
+        callback: (error: any, features: Array<GeoJSON.Feature<GeoJSON.Geometry>>) => void
       ): this;
     }
 
@@ -1489,7 +1534,7 @@ declare module "@jindin/mapbox-gl-4490" {
 
     export type CameraFunctionSpecification<T> = { type: "exponential"; stops: Array<[number, T]> } | { type: "interval"; stops: Array<[number, T]> };
 
-    export type ExpressionSpecification = Array<unknown>;
+    export type ExpressionSpecification = unknown[];
 
     export type PropertyValueSpecification<T> = T | CameraFunctionSpecification<T> | ExpressionSpecification;
 
@@ -1626,6 +1671,8 @@ declare module "@jindin/mapbox-gl-4490" {
     export class LngLatBounds {
       sw: LngLatLike;
       ne: LngLatLike;
+      _sw: LngLat;
+      _ne: LngLat;
 
       constructor(boundsLike?: [LngLatLike, LngLatLike] | [number, number, number, number]);
       constructor(sw: LngLatLike, ne: LngLatLike);
@@ -1809,6 +1856,10 @@ declare module "@jindin/mapbox-gl-4490" {
       getPitchAlignment(): Alignment;
 
       setPitchAlignment(alignment: Alignment): this;
+
+      getOccludedOpacity(): number;
+
+      setOccludedOpacity(opacity: number): this;
     }
 
     type Alignment = "map" | "viewport" | "auto";
@@ -1861,6 +1912,11 @@ declare module "@jindin/mapbox-gl-4490" {
        * The default scale (1) corresponds to a height of `41px` and a width of `27px`.
        */
       scale?: number | undefined;
+
+      /**
+       * The opacity of a marker that's occluded by 3D terrain. Number between 0 and 1.
+       */
+      occludedOpacity?: number | undefined;
     }
 
     type EventedListener = (object?: Object) => any;
@@ -2089,6 +2145,8 @@ declare module "@jindin/mapbox-gl-4490" {
       styledataloading: MapStyleDataEvent;
       sourcedata: MapSourceDataEvent;
       styledata: MapStyleDataEvent;
+      "style.load": MapboxEvent;
+      "style.import.load": MapboxEvent;
 
       boxzoomcancel: MapBoxZoomEvent;
       boxzoomstart: MapBoxZoomEvent;
@@ -2361,6 +2419,7 @@ declare module "@jindin/mapbox-gl-4490" {
       "background-pattern-transition"?: Transition | undefined;
       "background-opacity"?: number | Expression | undefined;
       "background-opacity-transition"?: Transition | undefined;
+      "background-emissive-strength"?: number | Expression | undefined;
     }
 
     export interface FillLayout extends Layout {
@@ -2380,6 +2439,16 @@ declare module "@jindin/mapbox-gl-4490" {
       "fill-translate-anchor"?: "map" | "viewport" | undefined;
       "fill-pattern"?: string | Expression | undefined;
       "fill-pattern-transition"?: Transition | undefined;
+      "fill-emissive-strength"?: number | Expression | undefined;
+      "fill-extrusion-ambient-occlusion-ground-attenuation"?: number | Expression | undefined;
+      "fill-extrusion-ambient-occlusion-ground-radius"?: number | Expression | undefined;
+      "fill-extrusion-ambient-occlusion-wall-radius"?: number | Expression | undefined;
+      "fill-extrusion-flood-light-color"?: string | StyleFunction | Expression | undefined;
+      "fill-extrusion-flood-light-ground-attenuation"?: number | Expression | undefined;
+      "fill-extrusion-flood-light-ground-radius"?: number | Expression | undefined;
+      "fill-extrusion-flood-light-intensity"?: number | Expression | undefined;
+      "fill-extrusion-flood-light-wall-radius"?: number | Expression | undefined;
+      "fill-extrusion-vertical-scale"?: number | Expression | undefined;
     }
 
     export interface FillExtrusionLayout extends Layout {}
@@ -2430,6 +2499,7 @@ declare module "@jindin/mapbox-gl-4490" {
       "line-pattern"?: string | Expression | undefined;
       "line-pattern-transition"?: Transition | undefined;
       "line-gradient"?: Expression | undefined;
+      "line-emissive-strength"?: number | Expression | undefined;
     }
 
     export interface SymbolLayout extends Layout {
@@ -2472,7 +2542,7 @@ declare module "@jindin/mapbox-gl-4490" {
       "text-optional"?: boolean | undefined;
       "text-radial-offset"?: number | Expression | undefined;
       "text-variable-anchor"?: Anchor[] | undefined;
-      "text-writing-mode"?: ("horizontal" | "vertical")[] | undefined;
+      "text-writing-mode"?: Array<"horizontal" | "vertical"> | undefined;
       "symbol-sort-key"?: number | Expression | undefined;
     }
 
@@ -2490,6 +2560,8 @@ declare module "@jindin/mapbox-gl-4490" {
       "icon-translate"?: number[] | Expression | undefined;
       "icon-translate-transition"?: Transition | undefined;
       "icon-translate-anchor"?: "map" | "viewport" | undefined;
+      "icon-emissive-strength"?: number | StyleFunction | Expression | undefined;
+      "icon-image-cross-fade"?: number | StyleFunction | Expression | undefined;
       "text-opacity"?: number | StyleFunction | Expression | undefined;
       "text-opacity-transition"?: Transition | undefined;
       "text-color"?: string | StyleFunction | Expression | undefined;
@@ -2503,6 +2575,7 @@ declare module "@jindin/mapbox-gl-4490" {
       "text-translate"?: number[] | Expression | undefined;
       "text-translate-transition"?: Transition | undefined;
       "text-translate-anchor"?: "map" | "viewport" | undefined;
+      "text-emissive-strength"?: number | StyleFunction | Expression | undefined;
     }
 
     export interface RasterLayout extends Layout {}
@@ -2522,6 +2595,9 @@ declare module "@jindin/mapbox-gl-4490" {
       "raster-contrast-transition"?: Transition | undefined;
       "raster-fade-duration"?: number | Expression | undefined;
       "raster-resampling"?: "linear" | "nearest" | undefined;
+      "raster-color"?: string | Expression | undefined;
+      "raster-color-mix"?: [number, number, number, number] | Expression | undefined;
+      "raster-color-range"?: [number, number] | Expression | undefined;
     }
 
     export interface CircleLayout extends Layout {
@@ -2548,6 +2624,7 @@ declare module "@jindin/mapbox-gl-4490" {
       "circle-stroke-color-transition"?: Transition | undefined;
       "circle-stroke-opacity"?: number | StyleFunction | Expression | undefined;
       "circle-stroke-opacity-transition"?: Transition | undefined;
+      "circle-emissive-strength"?: number | StyleFunction | Expression | undefined;
     }
 
     export interface HeatmapLayout extends Layout {}
