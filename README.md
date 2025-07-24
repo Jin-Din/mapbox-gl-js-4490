@@ -7,3 +7,6 @@
 ```
 npm install @jindin/mapbox-gl-4490
 ```
+
+## 限制
+1. 不支持globe模式，在globe模式下，瓦片会被拉伸
